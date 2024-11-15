@@ -5,6 +5,7 @@ export const usuariosLogin = `${api}/usuarios/login`;
 export const produtosFiltro = `${api}/produtos/filtro`;
 export const produtos = `${api}/produtos`;
 export const usuarios = `${api}/usuarios`;
+export const usuariosCadastrar = `${api}/usuarios/cadastrar`;
 
 
 // Função de login
@@ -69,11 +70,7 @@ export const updateProduct = async (id, productData) => {
 // Função para cadastrar usuarios
 export const registerUser = async (nome, email, senha) => {
   try {
-    const response = await axios.post(usuarios, { nome, email, senha }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+    const response = await axios.post(usuariosCadastrar, { nome, email, senha });
     return response.data;
   } catch (error) {
     throw error;
@@ -88,7 +85,11 @@ export const fetchProductsWithFilters = async (filters) => {
     descricao: filters.descricao,
     precoMin: filters.precoMin || undefined,
     precoMax: filters.precoMax || undefined,
-    ordenarPrecoAsc: filters.ordenarPrecoAsc
+    quantidade: filters.quantidade === 0 ? undefined : filters.quantidade,
+    ordenarPreco: filters.ordenarPreco === 0 ? undefined : filters.ordenarPreco,
+    ordenarQuantidade: filters.ordenarQuantidade === 0 ? undefined : filters.ordenarQuantidade,
+    ordenarNome: filters.ordenarNome === 0 ? undefined : filters.ordenarNome,
+    ordenarCategoria: filters.ordenarCategoria === 0 ? undefined : filters.ordenarCategoria,
   };
 
   const { data } = await axios.get(produtosFiltro, { params });

@@ -19,10 +19,14 @@ function RegisterUserPage() {
         navigate('/home');
       }, 2000);
     } catch (error) {
-      alert('Erro ao cadastrar usuário');
+      if (error.response) {
+        alert(error.response.data);
+      } else {
+        alert('Erro ao cadastrar usuário');
+      }
     }
   };
-
+  
   return (
     <div className="register-user-form-container">
       <div className="register-user-form">

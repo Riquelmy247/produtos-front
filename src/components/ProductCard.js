@@ -18,7 +18,9 @@ function ProductCard({ product }) {
     <div className="card product-card">
       <div className="card-body">
         <h1 className="card-title">{product.nome}</h1>
+        <h3 className="card-text">{product.categoria}</h3>
         <p className="card-text">{product.descricao}</p>
+        <p className="card-text">Quantidade: {product.quantidade}</p>
         <h3 className="card-text"><strong>R$ {product.preco}</strong></h3>
         <div className="button-group">
           <Link to={`/product-form?id=${product.id}`} className="btn btn-warning btn-icon">

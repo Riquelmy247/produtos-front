@@ -131,12 +131,6 @@
     outline: none;
 }
 
-.filter-container .sort-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 .filter-container .sort-container label {
     font-size: 1em;
     color: #555;
@@ -178,5 +172,29 @@
     .filter-container .bottom-filters input[type="text"],
     .filter-container .bottom-filters input[type="number"] {
         width: 100%;
+    }
+}
+
+.filter-container .sort-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
+}
+
+.filter-container .sort-container select {
+    flex: 1 1 22%; /* Garantindo que cada select ocupe uma parte proporcional da linha */
+    min-width: 160px; /* Tamanho mínimo para cada select */
+}
+
+@media (max-width: 900px) {
+    .filter-container .sort-container select {
+        flex: 1 1 45%;
+    }
+}
+
+@media (max-width: 600px) {
+    .filter-container .sort-container select {
+        flex: 1 1 100%;
     }
 }

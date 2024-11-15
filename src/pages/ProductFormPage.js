@@ -8,6 +8,7 @@ function ProductFormPage() {
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [quantidade, setQuantidade] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,6 +23,7 @@ function ProductFormPage() {
           setDescricao(product.descricao);
           setPreco(formatPrecoToDisplay(product.preco));
           setCategoria(product.categoria);
+          setQuantidade(product.quantidade);
         } catch (error) {
           alert('Erro ao carregar produto');
         }
@@ -51,7 +53,7 @@ function ProductFormPage() {
     e.preventDefault();
     try {
       const precoFormatted = formatPrecoToBackend(preco);
-      const productData = { nome, descricao, preco: precoFormatted, categoria };
+      const productData = { nome, descricao, preco: precoFormatted, categoria, quantidade };
 
       if (productId) {
         await updateProduct(productId, productData);
@@ -101,6 +103,17 @@ function ProductFormPage() {
             className="form-control"
             value={preco}
             onChange={handlePrecoChange}
+            required
+          />
+
+          <label htmlFor="quantidade" className="form-label">Quantidade</label>
+          <input
+            type="number"
+            min="0"
+            id="quantidade"
+            className="form-control"
+            value={quantidade}
+            onChange={(e) => setQuantidade(e.target.value)}
             required
           />
 

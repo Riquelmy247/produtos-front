@@ -8,6 +8,7 @@ function ProductCreatePage() {
   const [descricao, setDescricao] = useState('');
   const [preco, setPreco] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [quantidade, setQuantidade] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
@@ -32,7 +33,7 @@ function ProductCreatePage() {
     e.preventDefault();
     try {
       const precoFormatted = formatPrecoToBackend(preco);
-      const productData = { nome, descricao, preco: precoFormatted, categoria };
+      const productData = { nome, descricao, preco: precoFormatted, categoria,   };
 
       await createProduct(productData);
       setSuccessMessage('Produto cadastrado com sucesso!');

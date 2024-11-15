@@ -8,16 +8,21 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [names, setNames] = useState([]);
+  const [categories, setCategories] = useState([]);
+
   const [filters, setFilters] = useState({
     nome: '',
     categoria: '',
     descricao: '',
+    quantidade: '',
     precoMin: '',
     precoMax: '',
-    ordenarPrecoAsc: '',
+    ordenarPreco: 0,
+    ordenarQuantidade: 0,
+    ordenarNome: 0,
+    ordenarCategoria: 0,
   });
-
-  const [debounceTimeout, setDebounceTimeout] = useState(null);
 
   const formatPrecoToDisplay = (value) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -42,21 +47,15 @@ function HomePage() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    setFilters(prevFilters => ({
-      ...prevFilters,
-      [name]: value === 'crescente' ? true : value === 'decrescente' ? false : ''
-    }));
-
-    if (debounceTimeout) {
-      clearTimeout(debounceTimeout);
+    if (name === 'quantidade' && (value === '' || parseInt(value) <= 0)) {
+      return;
     }
 
-    const timeout = setTimeout(() => {
-    }, 500);
-
-    setDebounceTimeout(timeout);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value === 'crescente' ? 1 : value === 'decrescente' ? 2 : value === 'nao' ? 0 : value,
+    }));
   };
-
 
   const fetchProductData = async () => {
     setLoading(true);
@@ -75,6 +74,12 @@ function HomePage() {
 
       if (Object.keys(filteredFilters).length === 0) {
         data = await fetchProducts();
+        console.log('Produtos retornados:', data);
+        const uniqueNames = [...new Set(data.map((product) => product.nome))];
+        const uniqueCategories = [...new Set(data.map((product) => product.categoria))];
+
+        setNames(uniqueNames);
+        setCategories(uniqueCategories);
       } else {
         data = await fetchProductsWithFilters(filteredFilters);
       }
@@ -91,9 +96,13 @@ function HomePage() {
       nome: '',
       categoria: '',
       descricao: '',
+      quantidade: '',
       precoMin: '',
       precoMax: '',
-      ordenarPrecoAsc: true,
+      ordenarPreco: 0,
+      ordenarQuantidade: 0,
+      ordenarNome: 0,
+      ordenarCategoria: 0,
     });
     fetchProductData();
   };
@@ -101,6 +110,15 @@ function HomePage() {
   useEffect(() => {
     fetchProductData();
   }, []);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const uniqueNames = [...new Set(products.map((product) => product.nome))];
+      const uniqueCategories = [...new Set(products.map((product) => product.categoria))];
+      setNames(uniqueNames);
+      setCategories(uniqueCategories);
+    }
+  }, [products]);
 
   if (loading) {
     return <div>Carregando...</div>;
@@ -115,9 +133,56 @@ function HomePage() {
       <div className="filter-container">
         <form>
           <div className="top-filters">
-            <input type="text" name="nome" placeholder="Nome" value={filters.nome} onChange={handleInputChange} />
-            <input type="text" name="descricao" placeholder="Descrição" value={filters.descricao} onChange={handleInputChange} />
-            <input type="text" name="categoria" placeholder="Categoria" value={filters.categoria} onChange={handleInputChange} />
+            <select
+              name="nome"
+              value={filters.nome}
+              onChange={(e) => handleInputChange(e)}
+            >
+              <option value="">Selecione um Nome</option>
+              {names.length > 0 ? (
+                names.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))
+              ) : (
+                <option disabled>Nenhum nome disponível</option>
+              )}
+            </select>
+
+            <input
+              type="text"
+              name="descricao"
+              placeholder="Descrição"
+              value={filters.descricao}
+              onChange={handleInputChange}
+            />
+
+            <select
+              name="categoria"
+              value={filters.categoria}
+              onChange={(e) => handleInputChange(e)}
+            >
+              <option value="">Selecione uma Categoria</option>
+              {categories.length > 0 ? (
+                categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))
+              ) : (
+                <option disabled>Nenhuma categoria disponível</option>
+              )}
+            </select>
+
+            <input
+              type="number"
+              name="quantidade"
+              placeholder="Quantidade"  
+              min="1"
+              value={filters.quantidade}
+              onChange={handleInputChange}
+            />
           </div>
 
           <div className="bottom-filters">
@@ -139,23 +204,82 @@ function HomePage() {
 
           <div className="sort-container">
             <select
-              id="ordenarPrecoAsc"
-              name="ordenarPrecoAsc"
-              value={filters.ordenarPrecoAsc === true ? 'crescente' : filters.ordenarPrecoAsc === false ? 'decrescente' : 'nao'}
+              id="ordenarNome"
+              name="ordenarNome"
+              value={
+                filters.ordenarNome === 1
+                  ? 'crescente'
+                  : filters.ordenarNome === 2
+                    ? 'decrescente'
+                    : 'nao'
+              }
               onChange={handleInputChange}
             >
-              <option value="nao">Ordenar por Preço: Não</option>
-              <option value="crescente">Ordenar por Preço: Crescente</option>
-              <option value="decrescente">Ordenar por Preço: Decrescente</option>
+              <option value="nao">Ordenar Nome: Não</option>
+              <option value="crescente">Ordenar Nome: Crescente</option>
+              <option value="decrescente">Ordenar Nome: Decrescente</option>
+            </select>
+
+            <select
+              id="ordenarCategoria"
+              name="ordenarCategoria"
+              value={
+                filters.ordenarCategoria === 1
+                  ? 'crescente'
+                  : filters.ordenarCategoria === 2
+                    ? 'decrescente'
+                    : 'nao'
+              }
+              onChange={handleInputChange}
+            >
+              <option value="nao">Ordenar Categoria: Não</option>
+              <option value="crescente">Ordenar Categoria: Crescente</option>
+              <option value="decrescente">Ordenar Categoria: Decrescente</option>
+            </select>
+
+            <select
+              id="ordenarQuantidade"
+              name="ordenarQuantidade"
+              value={
+                filters.ordenarQuantidade === 1
+                  ? 'crescente'
+                  : filters.ordenarQuantidade === 2
+                    ? 'decrescente'
+                    : 'nao'
+              }
+              onChange={handleInputChange}
+            >
+              <option value="nao">Ordenar Quantidade: Não</option>
+              <option value="crescente">Ordenar Quantidade: Crescente</option>
+              <option value="decrescente">Ordenar Quantidade: Decrescente</option>
+            </select>
+
+            <select
+              id="ordenarPreco"
+              name="ordenarPreco"
+              value={
+                filters.ordenarPreco === 1
+                  ? 'crescente'
+                  : filters.ordenarPreco === 2
+                    ? 'decrescente'
+                    : 'nao'
+              }
+              onChange={handleInputChange}
+            >
+              <option value="nao">Ordenar Preço: Não</option>
+              <option value="crescente">Ordenar Preço: Crescente</option>
+              <option value="decrescente">Ordenar Preço: Decrescente</option>
             </select>
           </div>
 
-
           <div className="buttons-container">
-            <button type="button" className="fetch-filters" onClick={fetchProductData}>Pesquisar</button>
-            <button type="button" className="clear-filters" onClick={clearFilters}>Limpar Filtros</button>
+            <button type="button" className="fetch-filters" onClick={fetchProductData}>
+              Pesquisar
+            </button>
+            <button type="button" className="clear-filters" onClick={clearFilters}>
+              Limpar Filtros
+            </button>
           </div>
-
         </form>
       </div>
 
